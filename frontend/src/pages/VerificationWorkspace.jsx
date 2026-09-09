@@ -165,8 +165,6 @@ const VerificationWorkspace = () => {
 
   const renderFieldBadge = (fieldName) => {
     const rawVal = formFields[fieldName];
-    const score = confScores[fieldName] !== undefined ? confScores[fieldName] : (rawVal ? 90.0 : 0.0);
-    const tier = getConfidenceTier(score);
 
     if (!rawVal) {
       return (
@@ -176,6 +174,18 @@ const VerificationWorkspace = () => {
         </span>
       );
     }
+
+    if (!data.has_govt_database_match) {
+      return (
+        <span className='inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border bg-slate-100 text-slate-700 border-slate-200'>
+          <span className='w-1.5 h-1.5 rounded-full bg-slate-400'></span>
+          EXTRACTED • NO COMPARISON (UN-DIGITIZED)
+        </span>
+      );
+    }
+
+    const score = confScores[fieldName] !== undefined ? confScores[fieldName] : (rawVal ? 90.0 : 0.0);
+    const tier = getConfidenceTier(score);
 
     return (
       <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border ${tier.color}`}>

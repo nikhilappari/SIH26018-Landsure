@@ -425,12 +425,18 @@ const ProcessingResults = () => {
                               )}
                             </td>
                             <td className="px-3.5 py-2 text-right align-middle">
-                              {!isMissing ? (
-                                <span className={`font-bold text-[11px] ${score >= 80 ? 'text-emerald-600' : 'text-amber-500'}`}>
-                                  {score}%
-                                </span>
+                              {data.has_govt_database_match ? (
+                                !isMissing ? (
+                                  <span className={`font-bold text-[11px] ${score >= 80 ? 'text-emerald-600' : 'text-amber-500'}`}>
+                                    {score}%
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-300">-</span>
+                                )
                               ) : (
-                                <span className="text-gray-300">-</span>
+                                <span className="text-slate-400 font-bold text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200" title="Un-digitized record: No government baseline to compare">
+                                  N/A
+                                </span>
                               )}
                             </td>
                           </tr>

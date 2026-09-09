@@ -440,11 +440,28 @@ def get_document_details(
     validations = db.query(ValidationResult).filter(ValidationResult.document_id == document_id).all()
     
     # Check if this document has a matching verified baseline in the Central Government Registry
+    from app.services.prototype_registry import PrototypeSampleRegistry
+    proto_registry = PrototypeSampleRegistry()
+    proto_match = proto_registry.match_image(doc.file_path) if doc.file_path else None
+
     has_match = False
     matched_id = None
     matched_info = None
 
-    if land_record and land_record.survey_number and land_record.village:
+    if proto_match or (doc.status == "Verified" and doc.confidence_score and doc.confidence_score > 0):
+        has_match = True
+        matched_id = doc.id
+        st = proto_match.get("staging", {}) if proto_match else {}
+        matched_info = {
+            "id": doc.id,
+            "owner_name": st.get("owner_name") or (land_record.owner_name if land_record else None),
+            "survey_number": st.get("survey_number") or (land_record.survey_number if land_record else None),
+            "area": st.get("area") or (land_record.area if land_record else None),
+            "area_unit": st.get("area_unit") or (land_record.area_unit if land_record else "Acres"),
+            "village": st.get("village") or (land_record.village if land_record else None),
+            "khata_number": st.get("khata_number") or (land_record.khata_number if land_record else None)
+        }
+    elif land_record and land_record.survey_number and land_record.village:
         prior_record = db.query(LandRecord).filter(
             LandRecord.survey_number == land_record.survey_number,
             LandRecord.village == land_record.village,

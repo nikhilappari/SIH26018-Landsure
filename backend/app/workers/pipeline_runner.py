@@ -192,23 +192,39 @@ def run_document_digitization_pipeline(document_id: int):
             db.add(new_anom)
         db.commit()
 
-        # -------------------------------------------------------------
-        # Stage 6: CONFIDENCE SCORING & VERIFICATION ROUTING
-        # -------------------------------------------------------------
-        doc.processing_stage = "NORMALIZING"
-        db.commit()
+        # Check if record exists in Government Database
+        has_govt_db_entry = False
+        if staging_data.get("survey_number") and staging_data.get("village"):
+            prior_rec = db.query(LandRecord).filter(
+                LandRecord.survey_number == staging_data.get("survey_number"),
+                LandRecord.village == staging_data.get("village"),
+                LandRecord.verification_status == "Verified",
+                LandRecord.document_id != doc.id
+            ).first()
+            if prior_rec:
+                has_govt_db_entry = True
 
-        overall_confidence = calculate_document_confidence(confidences, ocr_conf, len(anomalies))
-        doc.confidence_score = overall_confidence
-
-        routing = evaluate_verification_routing(
-            overall_confidence=overall_confidence,
-            anomalies=anomalies,
-            is_handwritten=(format_type_str in ["HANDWRITTEN", "Handwritten"])
-        )
-
-        doc.status = routing["status"]
-        doc.processing_stage = "COMPLETED" if doc.status == "Verified" else "REVIEW_REQUIRED"
+        if has_govt_db_entry:
+            overall_confidence = calculate_document_confidence(confidences, ocr_conf, len(anomalies))
+            doc.confidence_score = overall_confidence
+            routing = evaluate_verification_routing(
+                overall_confidence=overall_confidence,
+                anomalies=anomalies,
+                is_handwritten=(format_type_str in ["HANDWRITTEN", "Handwritten"])
+            )
+            doc.status = routing["status"]
+            doc.processing_stage = "COMPLETED" if doc.status == "Verified" else "REVIEW_REQUIRED"
+        else:
+            # Un-digitized Legacy Record: No government database baseline exists to compare against
+            overall_confidence = 0.0
+            doc.confidence_score = 0.0
+            doc.status = "Pending"
+            doc.processing_stage = "REVIEW_REQUIRED"
+            # No field confidence scores because no baseline exists
+            confidences = {k: None for k in staging_data}
+            for k, v in structured_fields.items():
+                if isinstance(v, dict):
+                    v["confidence"] = None
 
         # Create or Update LandRecord staging entry
         from app.services.translation import transliterate_indic_text
