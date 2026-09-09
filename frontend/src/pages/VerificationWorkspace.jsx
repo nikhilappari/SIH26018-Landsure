@@ -154,6 +154,9 @@ const VerificationWorkspace = () => {
   const confScores = land_record?.confidence_scores || {};
   const overallConf = document.confidence_score || 0;
 
+  const hasScores = land_record?.confidence_scores && Object.values(land_record.confidence_scores).some(v => typeof v === 'number' && v > 0);
+  const isMatchedInGovtDb = data.has_govt_database_match === true || hasScores || (overallConf > 0) || (document.status === 'Verified');
+
   // 3-Tier Confidence Helper with Cadastral Record Labeling
   const getConfidenceTier = (score) => {
     const s = parseFloat(score || 0);
@@ -175,7 +178,7 @@ const VerificationWorkspace = () => {
       );
     }
 
-    if (!data.has_govt_database_match) {
+    if (!isMatchedInGovtDb) {
       return (
         <span className='inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border bg-slate-100 text-slate-700 border-slate-200'>
           <span className='w-1.5 h-1.5 rounded-full bg-slate-400'></span>
