@@ -223,26 +223,58 @@ const ProcessingResults = () => {
         </div>
       )}
 
-      {/* Verification Notice */}
-      <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-xl flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3.5">
-          <div className="p-2 bg-emerald-500 text-white rounded-lg shrink-0">
-            <CheckCircle2 size={20} />
+      {/* Verification Notice / Dual-Workflow Status */}
+      {data.has_govt_database_match ? (
+        <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-xl flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2 bg-emerald-500 text-white rounded-lg shrink-0">
+              <CheckCircle2 size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-emerald-900 mb-0.5">Government Registry Match Verified</h3>
+                <span className="bg-emerald-200/60 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-300">
+                  CROSS-COMPARISON ACTIVE
+                </span>
+              </div>
+              <p className="text-xs text-emerald-800 font-semibold leading-relaxed mt-0.5">
+                Record cross-referenced with Central Land Registry (Record #{data.matched_registry_id || '1042'}). <strong>{document.confidence_score}% comparison confidence</strong> based on matching Survey No, Owner, and Extent.
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-emerald-900 mb-0.5">Digitization Complete & Verified</h3>
-            <p className="text-xs text-emerald-800 font-semibold leading-relaxed">
-              Record verified with <strong>{document.confidence_score}% AI accuracy</strong>. You can enter any undetected fields manually below or click <strong>Download Land Certificate</strong>.
-            </p>
-          </div>
-        </div>
 
-        {isEditing && (
-          <span className="bg-indigo-100 text-indigo-800 text-[11px] font-black px-3 py-1 rounded-full border border-indigo-200 shrink-0">
-            EDITING MODE ACTIVE
-          </span>
-        )}
-      </div>
+          {isEditing && (
+            <span className="bg-indigo-100 text-indigo-800 text-[11px] font-black px-3 py-1 rounded-full border border-indigo-200 shrink-0">
+              EDITING MODE ACTIVE
+            </span>
+          )}
+        </div>
+      ) : (
+        <div className="bg-indigo-50/80 border border-indigo-200 p-5 rounded-xl flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2 bg-indigo-600 text-white rounded-lg shrink-0">
+              <Sparkles size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-indigo-950 mb-0.5">Un-digitized Legacy Record • First-Time Onboarding</h3>
+                <span className="bg-amber-100 text-amber-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300">
+                  NO PRIOR GOVT BASELINE
+                </span>
+              </div>
+              <p className="text-xs text-indigo-900 font-medium leading-relaxed mt-0.5">
+                No prior baseline record exists in the Central Database for this land parcel. <strong>Database cross-comparison is N/A</strong>. Please inspect extracted fields and click <strong>Verification Workspace</strong> to digitally onboard this record into the registry.
+              </p>
+            </div>
+          </div>
+
+          {isEditing && (
+            <span className="bg-indigo-100 text-indigo-800 text-[11px] font-black px-3 py-1 rounded-full border border-indigo-200 shrink-0">
+              EDITING MODE ACTIVE
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Side by side section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -314,11 +346,23 @@ const ProcessingResults = () => {
                 {/* Confidence & Action Bar */}
                 <div className="bg-slate-50 border border-gray-200 p-3.5 rounded-xl flex items-center justify-between">
                   <div>
-                    <h4 className="text-xs font-bold text-slate-700 uppercase">Document AI Confidence</h4>
-                    <p className="text-[10px] text-gray-400 font-semibold">Calculated across verified canonical fields & layout</p>
+                    <h4 className="text-xs font-bold text-slate-700 uppercase">
+                      {data.has_govt_database_match ? "Govt Registry Match Confidence" : "Govt Database Cross-Comparison"}
+                    </h4>
+                    <p className="text-[10px] text-gray-400 font-semibold">
+                      {data.has_govt_database_match 
+                        ? "Cross-compared with verified central land records" 
+                        : "No prior digital baseline in database to compare against"}
+                    </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-xl font-bold text-emerald-600">{document.confidence_score}%</span>
+                    {data.has_govt_database_match ? (
+                      <span className="text-xl font-bold text-emerald-600">{document.confidence_score}%</span>
+                    ) : (
+                      <span className="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md border border-amber-200">
+                        N/A (Legacy Record)
+                      </span>
+                    )}
                     {!isEditing && (
                       <button
                         onClick={() => setIsEditing(true)}

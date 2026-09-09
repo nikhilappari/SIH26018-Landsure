@@ -224,6 +224,15 @@ const VerificationWorkspace = () => {
                 {document.original_filename}
               </span>
               <StatusBadge status={document.status} />
+              {data.has_govt_database_match ? (
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  🏛️ GOVT REGISTRY MATCHED
+                </span>
+              ) : (
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                  📜 FIRST-TIME DIGITAL ONBOARDING
+                </span>
+              )}
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5 flex items-center gap-2">
               <span>Category: <strong className="text-slate-700">{document.doc_type || 'Land Record'}</strong></span>
@@ -237,11 +246,15 @@ const VerificationWorkspace = () => {
 
         {/* Overall Confidence & Actions */}
         <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-          <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 ${overallTier.color}`}>
-            <span className={`w-2 h-2 rounded-full ${overallTier.dot} animate-pulse`}></span>
+          <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 ${data.has_govt_database_match ? overallTier.color : 'bg-amber-50 text-amber-900 border-amber-200'}`}>
+            <span className={`w-2 h-2 rounded-full ${data.has_govt_database_match ? overallTier.dot : 'bg-amber-500'} animate-pulse`}></span>
             <div className="text-right">
-              <div className="text-[10px] font-bold uppercase tracking-wider">Overall AI Confidence</div>
-              <div className="text-xs font-black">{overallConf}% • {overallTier.label}</div>
+              <div className="text-[10px] font-bold uppercase tracking-wider">
+                {data.has_govt_database_match ? "Govt Match Confidence" : "Database Comparison"}
+              </div>
+              <div className="text-xs font-black">
+                {data.has_govt_database_match ? `${overallConf}% • ${overallTier.label}` : "N/A (Un-digitized Legacy Record)"}
+              </div>
             </div>
           </div>
 

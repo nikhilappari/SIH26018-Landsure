@@ -1,6 +1,6 @@
-﻿from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Any
 from app.schemas.land_records import LandRecordResponse
 from app.schemas.validation import ValidationResultResponse
 
@@ -31,3 +31,6 @@ class DocumentDetailResponse(BaseModel):
     document: DocumentResponse
     land_record: Optional[LandRecordResponse] = None
     validation_results: List[ValidationResultResponse] = []
+    has_govt_database_match: bool = False
+    matched_registry_id: Optional[int] = None
+    matched_registry_details: Optional[dict] = None

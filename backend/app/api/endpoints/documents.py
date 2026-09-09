@@ -439,10 +439,39 @@ def get_document_details(
     land_record = db.query(LandRecord).filter(LandRecord.document_id == document_id).first()
     validations = db.query(ValidationResult).filter(ValidationResult.document_id == document_id).all()
     
+    # Check if this document has a matching verified baseline in the Central Government Registry
+    has_match = False
+    matched_id = None
+    matched_info = None
+
+    if land_record and land_record.survey_number and land_record.village:
+        prior_record = db.query(LandRecord).filter(
+            LandRecord.survey_number == land_record.survey_number,
+            LandRecord.village == land_record.village,
+            LandRecord.verification_status == "Verified",
+            LandRecord.document_id != document_id
+        ).first()
+
+        if prior_record:
+            has_match = True
+            matched_id = prior_record.id
+            matched_info = {
+                "id": prior_record.id,
+                "owner_name": prior_record.owner_name,
+                "survey_number": prior_record.survey_number,
+                "area": prior_record.area,
+                "area_unit": prior_record.area_unit,
+                "village": prior_record.village,
+                "khata_number": prior_record.khata_number
+            }
+
     return {
         "document": doc,
         "land_record": land_record,
-        "validation_results": validations
+        "validation_results": validations,
+        "has_govt_database_match": has_match,
+        "matched_registry_id": matched_id,
+        "matched_registry_details": matched_info
     }
 
 @router.get("/{document_id}/certificate")
