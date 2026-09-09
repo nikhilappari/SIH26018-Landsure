@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Landmark, Lock, User, AlertCircle, Loader2 } from 'lucide-react';
+import { Landmark, Lock, User, AlertCircle, Loader2, KeyRound } from 'lucide-react';
 import { authService } from '../services/api';
 
 const Login = () => {
@@ -102,7 +102,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-slate-900 text-amber-500 hover:bg-slate-950 font-bold py-3 rounded-lg text-sm transition-all shadow flex items-center justify-center gap-2 border border-slate-800 hover:border-amber-500 mt-2"
+              className="w-full bg-slate-900 text-amber-500 hover:bg-slate-950 font-bold py-3 rounded-lg text-sm transition-all shadow flex items-center justify-center gap-2 border border-slate-800 hover:border-amber-500 mt-2 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -114,7 +114,43 @@ const Login = () => {
               )}
             </button>
           </form>
-          
+
+          {/* Public Access Credentials Box */}
+          <div className="mt-6 pt-5 border-t border-slate-200">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-700">
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                  <KeyRound size={14} className="text-amber-600" />
+                  Authorized Access Credentials
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  Ready to Use
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase mb-0.5">Username</div>
+                  <div className="font-mono font-bold text-slate-900 select-all">revenue_officer</div>
+                </div>
+                <div className="bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase mb-0.5">Password</div>
+                  <div className="font-mono font-bold text-slate-900 select-all">sih2026password</div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setUsername("revenue_officer");
+                  setPassword("sih2026password");
+                }}
+                className="mt-2.5 w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>Auto-fill Credentials</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
