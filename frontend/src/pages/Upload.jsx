@@ -11,7 +11,8 @@ import {
   Layers,
   Sparkles,
   Upload as UploadIcon,
-  Languages
+  Languages,
+  FileStack
 } from 'lucide-react';
 import { documentService } from '../services/api';
 import FileUploader from '../components/FileUploader';
@@ -137,14 +138,25 @@ const Upload = () => {
     <div className="max-w-4xl mx-auto space-y-6 pb-12">
       {/* Upload Box */}
       <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm space-y-6">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 mb-1 flex items-center gap-2">
-            <UploadIcon className="text-emerald-600" size={22} />
-            Upload Land Registry Document
-          </h2>
-          <p className="text-xs text-slate-500 font-medium">
-            Upload scanned land deeds or registry records for automated cadastral extraction and verification.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 mb-1 flex items-center gap-2">
+              <UploadIcon className="text-emerald-600" size={22} />
+              Upload Land Registry Document
+            </h2>
+            <p className="text-xs text-slate-500 font-medium">
+              Upload scanned land deeds or registry records for automated cadastral extraction and verification.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/sample-records')}
+            className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs cursor-pointer self-start sm:self-auto shrink-0"
+            title="Browse official digitalized and undigitalized sample records"
+          >
+            <FileStack size={16} />
+            <span>Sample Records</span>
+          </button>
         </div>
 
         {!uploading && (
