@@ -7,13 +7,16 @@ import {
   UploadCloud, 
   CheckCircle2, 
   AlertTriangle,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
+import { documentService } from '../services/api';
 
 const SampleRecords = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('digitized'); // 'digitized' | 'undigitized'
   const [selectedImage, setSelectedImage] = useState(null);
+  const [uploadingId, setUploadingId] = useState(null);
 
   // 1. Digitalized Records
   const digitizedRecords = [
@@ -78,6 +81,24 @@ const SampleRecords = () => {
   ];
 
   const currentList = activeTab === 'digitized' ? digitizedRecords : undigitizedRecords;
+
+  const handleDirectUpload = async (item) => {
+    if (!item.imageUrl) return;
+    try {
+      setUploadingId(item.id);
+      const res = await fetch(item.imageUrl);
+      const blob = await res.blob();
+      const file = new File([blob], item.downloadName || 'sample_record.jpg', { type: blob.type || 'image/jpeg' });
+      
+      const uploadedDoc = await documentService.upload(file, 'Auto');
+      navigate(`/processing/${uploadedDoc.id}`);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to upload record. Please try again: ' + (err.response?.data?.detail || err.message));
+    } finally {
+      setUploadingId(null);
+    }
+  };
 
   const handleDownload = (imageUrl, downloadName) => {
     if (!imageUrl) return;
@@ -197,18 +218,36 @@ const SampleRecords = () => {
               {item.imageUrl ? (
                 <>
                   <button
-                    onClick={() => setSelectedImage(item.imageUrl)}
-                    className="flex-1 bg-white hover:bg-slate-100 text-slate-800 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 border border-gray-200 transition cursor-pointer shadow-2xs"
+                    onClick={() => handleDirectUpload(item)}
+                    disabled={uploadingId !== null}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs disabled:opacity-60"
+                    title="Directly upload and process this record"
                   >
-                    <Eye size={14} />
-                    <span>View</span>
+                    {uploadingId === item.id ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <UploadCloud size={14} />
+                        <span>Upload Record</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setSelectedImage(item.imageUrl)}
+                    className="p-2 bg-white hover:bg-slate-100 text-slate-700 font-bold rounded-xl text-xs flex items-center justify-center border border-gray-200 transition cursor-pointer shadow-2xs"
+                    title="View Full Image"
+                  >
+                    <Eye size={15} />
                   </button>
                   <button
                     onClick={() => handleDownload(item.imageUrl, item.downloadName)}
-                    className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs"
+                    className="p-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs flex items-center justify-center transition cursor-pointer shadow-2xs"
+                    title="Download Image"
                   >
-                    <Download size={14} />
-                    <span>Download</span>
+                    <Download size={15} />
                   </button>
                 </>
               ) : (
