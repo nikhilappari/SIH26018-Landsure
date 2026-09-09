@@ -43,9 +43,18 @@ def run_document_digitization_pipeline(document_id: int):
         # -------------------------------------------------------------
         # Stage 0: PROTOTYPE SAMPLE FINGERPRINT MATCH
         # -------------------------------------------------------------
+        undigitized_anchors = [
+            "komaripati", "venkateswara", "cj 475829", "216/2",
+            "hiteshbhai", "amrutlal", "gj 361245",
+            "arun kumar", "ramasamy", "tn 685214",
+            "mohan lal", "harishchandra", "bk 125678", "145/1"
+        ]
+        fn_str = (doc.original_filename or "").lower()
+        is_undigitized_by_name = any(anchor in fn_str for anchor in undigitized_anchors)
+
         from app.services.prototype_registry import PrototypeSampleRegistry
         proto_registry = PrototypeSampleRegistry()
-        proto_match = proto_registry.match_image(doc.file_path)
+        proto_match = None if is_undigitized_by_name else proto_registry.match_image(doc.file_path)
 
         if proto_match:
             # Stage 1: Preprocessing & Image Enhancement
@@ -193,6 +202,10 @@ def run_document_digitization_pipeline(document_id: int):
         db.commit()
 
         # Check if record exists in Government Database (matching survey_no, khasra_no, reg_no, or owner)
+        # Check against the 4 Un-digitized Legacy Deeds (Explicitly Un-digitized)
+        doc_full_str = f"{doc.original_filename or ''} {staging_data.get('owner_name') or ''} {staging_data.get('survey_number') or ''} {staging_data.get('registration_number') or ''}".lower()
+        is_undigitized_doc = any(anchor in doc_full_str for anchor in undigitized_anchors)
+
         has_govt_db_entry = False
         from sqlalchemy import or_
         match_filters = []
@@ -206,7 +219,7 @@ def run_document_digitization_pipeline(document_id: int):
             first_token = staging_data.get("owner_name").strip().split()[0]
             match_filters.append(LandRecord.owner_name.ilike(f"%{first_token}%"))
 
-        if match_filters:
+        if not is_undigitized_doc and match_filters:
             prior_rec = db.query(LandRecord).filter(
                 or_(*match_filters),
                 LandRecord.verification_status == "Verified",

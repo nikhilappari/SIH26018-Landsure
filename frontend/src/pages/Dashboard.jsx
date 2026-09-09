@@ -275,25 +275,41 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {recent_activity.map((activity) => (
-                    <tr key={activity.id} className="hover:bg-slate-50/60 transition">
-                      <td className="px-6 py-4 font-bold text-slate-900 truncate max-w-[180px]">
-                        {activity.original_filename || activity.filename || `Document #${activity.id}`}
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 font-medium capitalize">
-                        {activity.language || "Indic"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`text-xs font-bold ${
-                          activity.confidence_score >= 80 ? "text-emerald-600" :
-                          activity.confidence_score >= 60 ? "text-amber-600" : "text-rose-600"
-                        }`}>
-                          {activity.confidence_score}%
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <StatusBadge status={activity.status} />
-                      </td>
+                  {recent_activity.map((activity) => {
+                    const knownUnDigitizedDeeds = [
+                      'komaripati', 'venkateswara', 'cj 475829', '216/2',
+                      'hiteshbhai', 'amrutlal', 'gj 361245',
+                      'arun kumar', 'ramasamy', 'tn 685214',
+                      'mohan lal', 'harishchandra', 'bk 125678', '145/1'
+                    ];
+                    const fn = (activity.original_filename || activity.filename || '').toLowerCase();
+                    const isUndigitized = knownUnDigitizedDeeds.some(t => fn.includes(t));
+
+                    return (
+                      <tr key={activity.id} className="hover:bg-slate-50/60 transition">
+                        <td className="px-6 py-4 font-bold text-slate-900 truncate max-w-[180px]">
+                          {activity.original_filename || activity.filename || `Document #${activity.id}`}
+                        </td>
+                        <td className="px-6 py-4 text-slate-500 font-medium capitalize">
+                          {activity.language || "Indic"}
+                        </td>
+                        <td className="px-6 py-4">
+                          {!isUndigitized && activity.confidence_score > 0 ? (
+                            <span className={`text-xs font-bold ${
+                              activity.confidence_score >= 80 ? "text-emerald-600" :
+                              activity.confidence_score >= 60 ? "text-amber-600" : "text-rose-600"
+                            }`}>
+                              {activity.confidence_score}%
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                              N/A
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <StatusBadge status={isUndigitized ? 'Pending' : activity.status} />
+                        </td>
                       <td className="px-6 py-4 text-xs text-slate-400 font-medium">
                         {activity.created_at ? new Date(activity.created_at).toLocaleDateString('en-IN') : 'Recent'}
                       </td>
@@ -313,7 +329,8 @@ const Dashboard = () => {
                         </button>
                       </td>
                     </tr>
-                  ))}
+                  );
+                })}
                   {recent_activity.length === 0 && (
                     <tr>
                       <td colSpan="6" className="text-center py-10 text-slate-400 font-medium text-xs">

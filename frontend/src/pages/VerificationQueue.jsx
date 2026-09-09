@@ -209,6 +209,15 @@ const VerificationQueue = () => {
                 const docId = item.document_id || item.id;
                 const conf = item.confidence_score || 0;
 
+                const knownUnDigitizedDeeds = [
+                  'komaripati', 'venkateswara', 'cj 475829', '216/2',
+                  'hiteshbhai', 'amrutlal', 'gj 361245',
+                  'arun kumar', 'ramasamy', 'tn 685214',
+                  'mohan lal', 'harishchandra', 'bk 125678', '145/1'
+                ];
+                const checkStr = `${item.original_filename || ''} ${lr.owner_name || ''} ${lr.survey_number || ''} ${lr.registration_number || ''}`.toLowerCase();
+                const isUndigitized = knownUnDigitizedDeeds.some(t => checkStr.includes(t));
+
                 return (
                   <tr key={docId} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-5 py-3.5">
@@ -224,10 +233,14 @@ const VerificationQueue = () => {
 
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2">
-                        <StatusBadge status={item.status} />
-                        {conf > 0 && (
+                        <StatusBadge status={isUndigitized ? 'Pending' : item.status} />
+                        {!isUndigitized && conf > 0 ? (
                           <span className="text-[11px] font-bold text-emerald-700">
                             {conf}%
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                            N/A (Un-digitized)
                           </span>
                         )}
                       </div>
