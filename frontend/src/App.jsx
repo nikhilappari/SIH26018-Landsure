@@ -12,6 +12,7 @@ import Search from './pages/Search';
 import RecordDetails from './pages/RecordDetails';
 import MapVisualization from './pages/MapVisualization';
 import AboutTeam from './pages/AboutTeam';
+import SampleRecords from './pages/SampleRecords';
 import { authService } from './services/api';
 
 import { SidebarProvider } from './context/SidebarContext';
@@ -144,6 +145,17 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <MapVisualization />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/sample-records"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <SampleRecords />
               </MainLayout>
             </ProtectedRoute>
           }

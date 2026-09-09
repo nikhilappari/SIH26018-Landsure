@@ -10,7 +10,8 @@ import {
   Users,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  FileStack
 } from 'lucide-react';
 import { authService } from '../services/api';
 import { useSidebar } from '../context/SidebarContext';
@@ -43,6 +44,7 @@ const Sidebar = () => {
     { to: '/upload', label: 'Upload Document', icon: UploadCloud, tooltip: 'Upload & Process Deed' },
     { to: '/verification', label: 'Review Queue', icon: ShieldCheck, tooltip: 'Review & Verify Records' },
     { to: '/search', label: 'Registry Search', icon: Search, tooltip: 'Search Land Records' },
+    { to: '/sample-records', label: 'Sample Records', icon: FileStack, tooltip: 'Sample Cadastral Records' },
     { to: '/about', label: 'About & Team', icon: Users, tooltip: 'Developers & Tech Stack' },
   ];
 
