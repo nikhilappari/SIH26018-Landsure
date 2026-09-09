@@ -137,9 +137,10 @@ const ProcessingResults = () => {
   const hasScores = land_record?.confidence_scores && Object.values(land_record.confidence_scores).some(v => typeof v === 'number' && v > 0);
   const isMatchedInGovtDb = data.has_govt_database_match === true || hasScores || (document?.confidence_score > 0) || (document?.status === 'Verified') || isKnownBaseline;
 
-  const handleDownloadPDF = () => {
-    window.open(documentService.getCertificateUrl(document.id), '_blank');
+  const handleDownloadCertificate = () => {
+    window.open(documentService.getCertificateUrl(document?.id || id), '_blank');
   };
+  const handleDownloadPDF = handleDownloadCertificate;
 
   const canonicalFieldList = [
     { key: "Owner Name", field: "owner_name", placeholder: "e.g. Ramasamy Velan" },
