@@ -29,21 +29,21 @@ Do not copy values from examples.
 Do not use filenames.
 Do not use information from previous documents.
 
-The document may be handwritten Telugu, handwritten Hindi, or printed English.
+The document may be in any Indian language or script (Telugu, Tamil, Hindi, Kannada, Marathi, Gujarati, Odia, Malayalam, English), printed or handwritten.
 
 Understand the source language first.
 
-For Telugu/Hindi values:
-- preserve the original source text in "original_value"
+For Indic/regional language values:
+- preserve the original source native script text in "original_value"
 - provide an English transliteration or standard English name as the final "value"
 
-Field identity MUST come from the document label and its spatial relationship to the value.
+Field identity MUST come from the document label, spatial tables, and its spatial relationship to the value.
 
 Return ONLY valid JSON.
 
 Schema:
 {
-  "detected_language": "Telugu|Hindi|English",
+  "detected_language": "Telugu|Tamil|Hindi|Kannada|Marathi|Gujarati|Odia|Malayalam|English",
   "document_type": "Land Record|Mutation Record|Sale Deed|Other",
   "format_type": "HANDWRITTEN|PRINTED|MIXED",
   "fields": {
