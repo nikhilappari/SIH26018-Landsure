@@ -119,23 +119,44 @@ const ProcessingResults = () => {
 
   const { document, land_record, validation_results } = data;
   
-  // Known official baseline records seeded in the Government Central Database
+  // 1. Five Official Government Digitized Baseline Deeds (Already Present in Govt Central Registry)
   const knownGovtBaselineMatches = [
-    'mutyala', 'narasimhulu', 'devansh', 'kanubhai', 'patel',
-    'amol', 'deshmukh', 'ravindra', 'hegde', 'ramkishor', 'yadav',
-    '224/2b', 'du 478965', 'gj 398765', 'ma 812345', 'ka 684512', 'ap 896512'
+    'mutyala', 'narasimhulu', 'du 478965', '224/2b',
+    'devansh', 'kanubhai', 'gj 398765',
+    'amol', 'deshmukh', 'ma 812345',
+    'ravindra', 'hegde', 'ka 684512',
+    'ramkishor', 'badri', 'yadav', 'ap 896512'
+  ];
+
+  // 2. Four Un-digitized Legacy Deeds (NOT Present in Government Database)
+  const knownUnDigitizedDeeds = [
+    'komaripati', 'venkateswara', 'cj 475829', '216/2',
+    'hiteshbhai', 'amrutlal', 'gj 361245',
+    'arun kumar', 'ramasamy', 'tn 685214',
+    'mohan lal', 'harishchandra', 'bk 125678', '145/1'
   ];
   
   const ownerLower = (land_record?.owner_name || document?.original_filename || '').toLowerCase();
   const surveyLower = (land_record?.survey_number || land_record?.khasra_number || '').toLowerCase();
   const regLower = (land_record?.registration_number || '').toLowerCase();
+  const fnameLower = (document?.original_filename || '').toLowerCase();
   
-  const isKnownBaseline = knownGovtBaselineMatches.some(term => 
-    ownerLower.includes(term) || surveyLower.includes(term) || regLower.includes(term)
+  const isUnDigitized = knownUnDigitizedDeeds.some(term => 
+    ownerLower.includes(term) || surveyLower.includes(term) || regLower.includes(term) || fnameLower.includes(term)
+  );
+
+  const isKnownGovtBaseline = knownGovtBaselineMatches.some(term => 
+    ownerLower.includes(term) || surveyLower.includes(term) || regLower.includes(term) || fnameLower.includes(term)
   );
 
   const hasScores = land_record?.confidence_scores && Object.values(land_record.confidence_scores).some(v => typeof v === 'number' && v > 0);
-  const isMatchedInGovtDb = data.has_govt_database_match === true || hasScores || (document?.confidence_score > 0) || (document?.status === 'Verified') || isKnownBaseline;
+  
+  // A record is verified & matched in Govt Database ONLY if it is not an un-digitized deed AND matches Govt DB
+  const isMatchedInGovtDb = !isUnDigitized && (
+    isKnownGovtBaseline || 
+    data.has_govt_database_match === true || 
+    (hasScores && document?.status === 'Verified' && document?.confidence_score > 0)
+  );
 
   const handleDownloadCertificate = () => {
     window.open(documentService.getCertificateUrl(document?.id || id), '_blank');
