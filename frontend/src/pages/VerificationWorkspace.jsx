@@ -236,11 +236,11 @@ const VerificationWorkspace = () => {
               <StatusBadge status={document.status} />
               {data.has_govt_database_match ? (
                 <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  🏛️ GOVT REGISTRY MATCHED
+                  🏛️ MATCHED IN GOVT DATABASE
                 </span>
               ) : (
-                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-                  📜 FIRST-TIME DIGITAL ONBOARDING
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
+                  ⚠️ NOT FOUND IN GOVT DATABASE
                 </span>
               )}
             </div>

@@ -250,20 +250,20 @@ const ProcessingResults = () => {
           )}
         </div>
       ) : (
-        <div className="bg-indigo-50/80 border border-indigo-200 p-5 rounded-xl flex items-start justify-between gap-4">
+        <div className="bg-amber-50/90 border border-amber-300 p-5 rounded-xl flex items-start justify-between gap-4">
           <div className="flex items-start gap-3.5">
-            <div className="p-2 bg-indigo-600 text-white rounded-lg shrink-0">
+            <div className="p-2 bg-amber-600 text-white rounded-lg shrink-0">
               <Sparkles size={20} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-indigo-950 mb-0.5">Un-digitized Legacy Record • First-Time Onboarding</h3>
-                <span className="bg-amber-100 text-amber-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-amber-300">
-                  NO PRIOR GOVT BASELINE
+                <h3 className="text-sm font-bold text-amber-950 mb-0.5">Not Found in Government Database</h3>
+                <span className="bg-rose-100 text-rose-800 text-[10px] font-black px-2 py-0.5 rounded-full border border-rose-300">
+                  NOT FOUND IN DATABASE
                 </span>
               </div>
-              <p className="text-xs text-indigo-900 font-medium leading-relaxed mt-0.5">
-                No prior baseline record exists in the Central Database for this land parcel. <strong>Database cross-comparison is N/A</strong>. Please inspect extracted fields and click <strong>Verification Workspace</strong> to digitally onboard this record into the registry.
+              <p className="text-xs text-amber-900 font-medium leading-relaxed mt-0.5">
+                This document was <strong>not found in the Government Central Database</strong>. Because there is no existing record to compare against, <strong>no confidence score is generated (N/A)</strong>. Extracted fields from the scan are displayed below for officer verification and first-time onboarding.
               </p>
             </div>
           </div>
