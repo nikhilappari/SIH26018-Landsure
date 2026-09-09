@@ -160,8 +160,13 @@ class PrototypeSampleRegistry:
         if best_match_id and best_similarity >= 0.75:
             matched_sample = self.samples[best_match_id]
             data = matched_sample["data"]
-            fields_data = dict(data.get("fields", {}))
+            fields_data = dict(data.get("staging", {}) or data.get("fields", {}))
             reg_values = dict(data.get("regional_values", {}))
+
+            if "tehsil_mandal" in fields_data:
+                fields_data["mandal"] = fields_data["tehsil_mandal"]
+            elif "mandal" in fields_data:
+                fields_data["tehsil_mandal"] = fields_data["mandal"]
 
             # Unify Survey Number and Khasra Number so survey_number is always populated
             if not fields_data.get("survey_number") and fields_data.get("khasra_number"):
