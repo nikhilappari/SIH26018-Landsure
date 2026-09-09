@@ -53,8 +53,124 @@ def seed_default_users():
     finally:
         db.close()
 
-# Auto-seed users on initialization
+def seed_default_land_records():
+    """Ensure the 5 Official Government Cadastral Baseline Records are always present in database on startup."""
+    from app.models.land_records import LandRecord
+    from app.models.documents import Document
+    db = SessionLocal()
+    try:
+        baseline_records = [
+            {
+                'owner_name': 'Devansh Kanubhai Patel',
+                'father_name': 'Kanubhai Patel',
+                'survey_number': '123/4',
+                'khasra_number': '123/4',
+                'khata_number': 'GJ-398',
+                'plot_number': '45',
+                'area': 120.0,
+                'area_unit': 'Sq. Meters',
+                'village': 'Athwa',
+                'tehsil_mandal': 'Kamrej',
+                'district': 'Surat',
+                'land_classification': 'Residential / Non-Agricultural',
+                'ownership_type': 'Pattadar / Self-owned',
+                'registration_number': 'GJ 398765',
+                'registration_date': '2024-01-05',
+                'verification_status': 'Verified'
+            },
+            {
+                'owner_name': 'Amol Ashok Deshmukh',
+                'father_name': 'Ashok Deshmukh',
+                'survey_number': '123',
+                'khasra_number': 'Gat 123',
+                'khata_number': 'MH-812',
+                'plot_number': '101',
+                'area': 1000.0,
+                'area_unit': 'Sq. Meters',
+                'village': 'Talmavale',
+                'tehsil_mandal': 'Karad',
+                'district': 'Satara',
+                'land_classification': 'Agricultural / Non-Agricultural Land',
+                'ownership_type': 'Pattadar / Sole Owner',
+                'registration_number': 'MA 812345',
+                'registration_date': '2024-06-01',
+                'verification_status': 'Verified'
+            },
+            {
+                'owner_name': 'Ravindra Hegde',
+                'father_name': 'Hegde',
+                'survey_number': '123/4',
+                'khasra_number': 'Site 123/4',
+                'khata_number': '4567',
+                'plot_number': 'Site 123/4',
+                'area': 2400.0,
+                'area_unit': 'Sq. Feet',
+                'village': 'Jayanagar',
+                'tehsil_mandal': 'Bengaluru South',
+                'district': 'Bengaluru',
+                'land_classification': 'Residential / Urban Property',
+                'ownership_type': 'Sole Owner / Self-owned',
+                'registration_number': 'KA 684512',
+                'registration_date': '2024-04-20',
+                'verification_status': 'Verified'
+            },
+            {
+                'owner_name': 'Mutyala Narasimhulu',
+                'father_name': 'Mutyala Subbarayudu',
+                'survey_number': '224/2B',
+                'khasra_number': '224/2B',
+                'khata_number': '578',
+                'plot_number': 'Plot 2',
+                'area': 3.15,
+                'area_unit': 'Acres',
+                'village': 'Velagapudi',
+                'tehsil_mandal': 'Eluru',
+                'district': 'West Godavari',
+                'land_classification': 'Agricultural Land (వ్యవసాయ భూమి)',
+                'ownership_type': 'Pattadar / Sole Owner',
+                'registration_number': 'DU 478965',
+                'registration_date': '2023-07-18',
+                'verification_status': 'Verified'
+            },
+            {
+                'owner_name': 'Ramkishor Yadav',
+                'father_name': 'Badri Prasad Yadav',
+                'survey_number': '89/2',
+                'khasra_number': '89/2',
+                'khata_number': '275',
+                'plot_number': 'Plot 1',
+                'area': 0.86,
+                'area_unit': 'Hectares',
+                'village': 'Dharampur',
+                'tehsil_mandal': 'Sahjanwa',
+                'district': 'Gorakhpur',
+                'land_classification': 'Agricultural Irrigated (कृषि सिंचित)',
+                'ownership_type': 'Pattadar / Khatedar',
+                'registration_number': 'AP 896512',
+                'registration_date': '2024-04-12',
+                'verification_status': 'Verified'
+            }
+        ]
+
+        for r_data in baseline_records:
+            existing = db.query(LandRecord).filter(
+                (LandRecord.survey_number == r_data['survey_number']) &
+                ((LandRecord.village == r_data['village']) | (LandRecord.registration_number == r_data['registration_number']))
+            ).first()
+            if not existing:
+                rec = LandRecord(**r_data)
+                db.add(rec)
+
+        db.commit()
+    except Exception as e:
+        print(f"Error auto-seeding baseline land records: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+# Auto-seed users and official government land records on initialization
 seed_default_users()
+seed_default_land_records()
 
 app = FastAPI(
     title="LandSure AI - Land Record Digitization & Validation API",

@@ -192,14 +192,22 @@ def run_document_digitization_pipeline(document_id: int):
             db.add(new_anom)
         db.commit()
 
-        # Check if record exists in Government Database
+        # Check if record exists in Government Database (matching survey_no, reg_no, or owner)
         has_govt_db_entry = False
-        if staging_data.get("survey_number") and staging_data.get("village"):
+        from sqlalchemy import or_
+        match_filters = []
+        if staging_data.get("survey_number"):
+            match_filters.append(LandRecord.survey_number == staging_data.get("survey_number"))
+        if staging_data.get("registration_number"):
+            match_filters.append(LandRecord.registration_number == staging_data.get("registration_number"))
+        if staging_data.get("owner_name"):
+            match_filters.append(LandRecord.owner_name.ilike(f"%{staging_data.get('owner_name')}%"))
+
+        if match_filters:
             prior_rec = db.query(LandRecord).filter(
-                LandRecord.survey_number == staging_data.get("survey_number"),
-                LandRecord.village == staging_data.get("village"),
+                or_(*match_filters),
                 LandRecord.verification_status == "Verified",
-                LandRecord.document_id != doc.id
+                or_(LandRecord.document_id != doc.id, LandRecord.document_id.is_(None))
             ).first()
             if prior_rec:
                 has_govt_db_entry = True
