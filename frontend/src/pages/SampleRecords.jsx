@@ -7,16 +7,13 @@ import {
   UploadCloud, 
   CheckCircle2, 
   AlertTriangle,
-  X,
-  Loader2
+  X 
 } from 'lucide-react';
-import { documentService } from '../services/api';
 
 const SampleRecords = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('digitized'); // 'digitized' | 'undigitized'
   const [selectedImage, setSelectedImage] = useState(null);
-  const [uploadingId, setUploadingId] = useState(null);
 
   // 1. Digitalized Records
   const digitizedRecords = [
@@ -24,80 +21,82 @@ const SampleRecords = () => {
       id: 'dig-1',
       title: 'Andhra Pradesh (Telugu Deed)',
       imageUrl: '/sample_records/digitized/andhra_pradesh.jpg',
-      downloadName: 'Andhra_Pradesh_Sample.jpg'
+      downloadName: 'Andhra_Pradesh_Sample.jpg',
+      language: 'Telugu'
     },
     {
       id: 'dig-2',
       title: 'Gujarat (Gujarati Deed)',
       imageUrl: '/sample_records/digitized/gujarat.jpg',
-      downloadName: 'Gujarat_Sample.jpg'
+      downloadName: 'Gujarat_Sample.jpg',
+      language: 'Gujarati'
     },
     {
       id: 'dig-3',
       title: 'Maharashtra (Marathi Deed)',
       imageUrl: '/sample_records/digitized/maharashtra.jpg',
-      downloadName: 'Maharashtra_Sample.jpg'
+      downloadName: 'Maharashtra_Sample.jpg',
+      language: 'Marathi'
     },
     {
       id: 'dig-4',
       title: 'Karnataka (Kannada Deed)',
       imageUrl: '/sample_records/digitized/karnataka.jpg',
-      downloadName: 'Karnataka_Sample.jpg'
+      downloadName: 'Karnataka_Sample.jpg',
+      language: 'Kannada'
     },
     {
       id: 'dig-5',
       title: 'Uttar Pradesh (Hindi Deed)',
       imageUrl: '/sample_records/digitized/uttar_pradesh.jpg',
-      downloadName: 'Uttar_Pradesh_Sample.jpg'
+      downloadName: 'Uttar_Pradesh_Sample.jpg',
+      language: 'Hindi'
     }
   ];
 
-  // 2. Undigitalized Records (Placeholders ready for user's images)
+  // 2. Undigitalized Records (User's legacy records not in govt database)
   const undigitizedRecords = [
     {
       id: 'undig-1',
       title: 'Telangana (Telugu Deed)',
-      imageUrl: '',
-      downloadName: 'Telangana_Undigitized_Sample.jpg'
+      imageUrl: '/sample_records/undigitized/telangana.jpg',
+      downloadName: 'Telangana_Sample.jpg',
+      language: 'Telugu'
     },
     {
       id: 'undig-2',
       title: 'Gujarat (Gujarati Deed)',
-      imageUrl: '',
-      downloadName: 'Gujarat_Undigitized_Sample.jpg'
+      imageUrl: '/sample_records/undigitized/gujarat.jpg',
+      downloadName: 'Gujarat_Sample.jpg',
+      language: 'Gujarati'
     },
     {
       id: 'undig-3',
       title: 'Tamil Nadu (Tamil Deed)',
-      imageUrl: '',
-      downloadName: 'TamilNadu_Undigitized_Sample.jpg'
+      imageUrl: '/sample_records/undigitized/tamil_nadu.jpg',
+      downloadName: 'Tamil_Nadu_Sample.jpg',
+      language: 'Tamil'
     },
     {
       id: 'undig-4',
       title: 'Uttar Pradesh (Hindi Deed)',
-      imageUrl: '',
-      downloadName: 'UttarPradesh_Undigitized_Sample.jpg'
+      imageUrl: '/sample_records/undigitized/uttar_pradesh.jpg',
+      downloadName: 'Uttar_Pradesh_Sample.jpg',
+      language: 'Hindi'
     }
   ];
 
   const currentList = activeTab === 'digitized' ? digitizedRecords : undigitizedRecords;
 
-  const handleDirectUpload = async (item) => {
+  const handleDirectUpload = (item) => {
     if (!item.imageUrl) return;
-    try {
-      setUploadingId(item.id);
-      const res = await fetch(item.imageUrl);
-      const blob = await res.blob();
-      const file = new File([blob], item.downloadName || 'sample_record.jpg', { type: blob.type || 'image/jpeg' });
-      
-      const uploadedDoc = await documentService.upload(file, 'Auto');
-      navigate(`/processing/${uploadedDoc.id}`);
-    } catch (err) {
-      console.error(err);
-      alert('Failed to upload record. Please try again: ' + (err.response?.data?.detail || err.message));
-    } finally {
-      setUploadingId(null);
-    }
+    navigate('/upload', {
+      state: {
+        sampleUrl: item.imageUrl,
+        sampleName: item.downloadName,
+        language: item.language || 'Auto'
+      }
+    });
   };
 
   const handleDownload = (imageUrl, downloadName) => {
@@ -219,21 +218,11 @@ const SampleRecords = () => {
                 <>
                   <button
                     onClick={() => handleDirectUpload(item)}
-                    disabled={uploadingId !== null}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs disabled:opacity-60"
-                    title="Directly upload and process this record"
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs"
+                    title="Upload and process this document"
                   >
-                    {uploadingId === item.id ? (
-                      <>
-                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Uploading...</span>
-                      </>
-                    ) : (
-                      <>
-                        <UploadCloud size={14} />
-                        <span>Upload Record</span>
-                      </>
-                    )}
+                    <UploadCloud size={14} />
+                    <span>Upload Record</span>
                   </button>
                   <button
                     onClick={() => setSelectedImage(item.imageUrl)}

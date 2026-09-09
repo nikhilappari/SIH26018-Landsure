@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   FileText, 
   ArrowRight, 
@@ -18,10 +18,12 @@ import FileUploader from '../components/FileUploader';
 
 const Upload = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [uploading, setUploading] = useState(false);
   const [docId, setDocId] = useState(null);
   const [pipelineStep, setPipelineStep] = useState(0); // 0: Idle, 1: Preprocessing, 2: Classification, 3: OCR, 4: NLP, 5: Validation, 6: Finished
   const [selectedLanguage, setSelectedLanguage] = useState("Auto");
+  const autoUploadedRef = useRef(false);
 
   const stepsList = [
     { label: "Document Uploaded", desc: "Original scanned file saved securely" },
@@ -32,12 +34,13 @@ const Upload = () => {
     { label: "Validation Engine Check", desc: "Checking area consistency, duplicates, and conflicts" }
   ];
 
-  const handleFileSelect = async (file) => {
+  const handleFileSelect = async (file, langOverride = null) => {
     setUploading(true);
     setPipelineStep(1); // Started preprocessing
     
+    const langToUse = langOverride !== null ? langOverride : selectedLanguage;
     try {
-      const response = await documentService.upload(file, selectedLanguage === "Auto" ? "" : selectedLanguage);
+      const response = await documentService.upload(file, langToUse === "Auto" ? "" : langToUse);
       const newDocId = response.document_id || response.id;
       setDocId(newDocId);
     } catch (err) {
@@ -46,6 +49,39 @@ const Upload = () => {
       setPipelineStep(0);
     }
   };
+
+  // Automatically load and upload sample document if navigated from Sample Records
+  useEffect(() => {
+    if (location.state?.sampleUrl && !autoUploadedRef.current) {
+      autoUploadedRef.current = true;
+      const sampleState = { ...location.state };
+      window.history.replaceState({}, document.title);
+      
+      setUploading(true);
+      setPipelineStep(0);
+      
+      const loadAndUploadSample = async () => {
+        try {
+          const sampleLang = sampleState.language || "Auto";
+          setSelectedLanguage(sampleLang);
+          const res = await fetch(sampleState.sampleUrl);
+          const blob = await res.blob();
+          const file = new File(
+            [blob], 
+            sampleState.sampleName || 'sample_record.jpg', 
+            { type: blob.type || 'image/jpeg' }
+          );
+          await handleFileSelect(file, sampleLang);
+        } catch (err) {
+          console.error("Auto-upload of sample failed:", err);
+          setUploading(false);
+          setPipelineStep(0);
+          alert("Failed to load sample document: " + err.message);
+        }
+      };
+      loadAndUploadSample();
+    }
+  }, [location.state]);
 
   // Poll for document status
   useEffect(() => {
